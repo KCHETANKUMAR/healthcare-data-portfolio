@@ -1,0 +1,51 @@
+report_id,report_date,event_term,seriousness,outcome,suspect_product,age_group,country,report_source,follow_up_received
+SYN-001,2025-01-03,Headache,Non-serious,Recovered,DemoCompound-A,18-29,Exampleland,Fictional participant,No
+SYN-002,2025-01-11,Nausea,Non-serious,Recovering,DemoCompound-B,30-44,Sample Republic,Fictional clinician,No
+SYN-003,2025-01-19,Dizziness,Non-serious,Not recovered,DemoVaccine-C,45-59,Fiction Isles,Fictional caregiver,Yes
+SYN-004,2025-01-27,Fatigue,Serious,Fatal,Placebo-Z,60+,Demo Territory,Fictional participant,No
+SYN-005,2025-02-04,Rash,Non-serious,Unknown,DemoCompound-A,18-29,Exampleland,Fictional clinician,No
+SYN-006,2025-02-12,Dry mouth,Non-serious,Recovered,DemoCompound-B,30-44,Sample Republic,Fictional caregiver,Yes
+SYN-007,2025-02-20,Sleepiness,Non-serious,Recovering,DemoVaccine-C,45-59,Fiction Isles,Fictional participant,No
+SYN-008,2025-02-28,Stomach discomfort,Serious,Not recovered,Placebo-Z,60+,Demo Territory,Fictional clinician,No
+SYN-004,2025-03-08,Injection-site redness,Non-serious,Fatal,DemoCompound-A,18-29,Exampleland,Fictional caregiver,Yes
+SYN-010,2025-03-16,Temporary flushing,Non-serious,Unknown,DemoCompound-B,30-44,Sample Republic,Fictional participant,No
+SYN-011,2025-03-24,Headache,Non-serious,Recovered,DemoVaccine-C,45-59,Fiction Isles,Fictional clinician,No
+SYN-012,2025-04-01,Nausea,Serious,Recovering,Placebo-Z,60+,Demo Territory,Fictional caregiver,Yes
+SYN-013,2025-04-09,Dizziness,Non-serious,Not recovered,DemoCompound-A,18-29,Exampleland,Fictional participant,No
+SYN-014,2025-04-17,Fatigue,Non-serious,Fatal,DemoCompound-B,30-44,Sample Republic,Fictional clinician,No
+SYN-015,2025-04-25,,Non-serious,Unknown,DemoVaccine-C,45-59,Fiction Isles,Fictional caregiver,Yes
+SYN-016,2025-05-03,Dry mouth,Serious,Recovered,Placebo-Z,60+,Demo Territory,Fictional participant,No
+SYN-017,2025-05-11,Sleepiness,Non-serious,Recovering,DemoCompound-A,18-29,Exampleland,Fictional clinician,No
+SYN-018,2025-05-19,Stomach discomfort,Non-serious,,DemoCompound-B,30-44,Sample Republic,Fictional caregiver,Yes
+SYN-019,2025-05-27,Injection-site redness,Non-serious,Fatal,DemoVaccine-C,45-59,Fiction Isles,Fictional participant,No
+SYN-020,2025-06-04,Temporary flushing,Serious,Unknown,Placebo-Z,60+,Demo Territory,Fictional clinician,No
+SYN-021,2025-06-12,Headache,Non-serious,Recovered,DemoCompound-A,18-29,Exampleland,Fictional caregiver,Yes
+SYN-022,2025-06-20,Nausea,Non-serious,Recovering,DemoCompound-B,30-44,Sample Republic,Fictional participant,No
+SYN-023,2025-02-30,Dizziness,Non-serious,Not recovered,DemoVaccine-C,45-59,Fiction Isles,Fictional clinician,No
+SYN-024,2025-07-06,Fatigue,Serious,Fatal,Placebo-Z,60+,Demo Territory,Fictional caregiver,Yes
+SYN-025,2025-07-14,Rash,Non-serious,Unknown,DemoCompound-A,18-29,Exampleland,Fictional participant,No
+SYN-026,2025-07-22,Dry mouth,Non-serious,Recovered,DemoCompound-B,30-44,Sample Republic,Fictional clinician,No
+SYN-027,2025-07-30,Sleepiness,serious,Recovering,DemoVaccine-C,45-59,Fiction Isles,Fictional caregiver,Yes
+SYN-028,2025-08-07,Stomach discomfort,Serious,Not recovered,Placebo-Z,60+,Demo Territory,Fictional participant,No
+SYN-029,2025-08-15,Injection-site redness,Non-serious,Fatal,DemoCompound-A,18-29,Exampleland,Fictional clinician,No
+SYN-030,2025-08-23,Temporary flushing,Non-serious,Unknown,DemoCompound-B,30-44,Sample Republic,Fictional caregiver,Yes
+SYN-031,2025-08-31,Headache,Non-serious,Recovered,DemoVaccine-C,45-59,Fiction Isles,Fictional participant,No
+SYN-032,2025-09-08,Nausea,Serious,Recovering,Placebo-Z,60+,Demo Territory,Fictional clinician,Maybe
+SYN-033,2025-09-16,Dizziness,Non-serious,Not recovered,DemoCompound-A,18-29,Exampleland,Fictional caregiver,Yes
+SYN-034,2025-09-24,Fatigue,Non-serious,Fatal,DemoCompound-B,30-44,Sample Republic,Fictional participant,No
+SYN-035,2025-10-02,Rash,Non-serious,Unknown,DemoVaccine-C,45-59,Fiction Isles,Fictional clinician,No
+,2025-10-10,Dry mouth,Serious,Recovered,Placebo-Z,60+,Demo Territory,Fictional caregiver,Yes
+SYN-037,2025-10-18,Sleepiness,Non-serious,Recovering,DemoCompound-A,18-29,Exampleland,Fictional participant,No
+SYN-038,2025-10-26,Stomach discomfort,Non-serious,Not recovered,DemoCompound-B,30-44,Sample Republic,Fictional clinician,No
+SYN-039,2025-11-03,Injection-site redness,Non-serious,Fatal,DemoVaccine-C,45-59,Fiction Isles,Fictional caregiver,Yes
+SYN-040,2025-11-11,Temporary flushing,Serious,Unknown,Placebo-Z,60+,Demo Territory,Fictional participant,No
+SYN-041,2025-11-19,Headache,Non-serious,Resolved,DemoCompound-A,18-29,Exampleland,Fictional clinician,No
+SYN-042,2025-11-27,Nausea,Non-serious,Recovering,DemoCompound-B,30-44,Sample Republic,Fictional caregiver,Yes
+SYN-043,2025-12-05,Dizziness,Non-serious,Not recovered,DemoVaccine-C,45-59,Fiction Isles,Fictional participant,No
+SYN-044,2025-12-13,Fatigue,Serious,Fatal,Placebo-Z,60+,Demo Territory,Fictional clinician,No
+SYN-045,,Rash,Non-serious,Unknown,DemoCompound-A,18-29,Exampleland,Fictional caregiver,Yes
+SYN-046,2025-12-29,Dry mouth,Non-serious,Recovered,DemoCompound-B,30-44,Sample Republic,Fictional participant,No
+SYN-047,2026-01-06,Sleepiness,Non-serious,Recovering,DemoVaccine-C,45-59,Fiction Isles,Fictional clinician,No
+SYN-048,2026-01-14,Stomach discomfort,Serious,Not recovered,Placebo-Z,60+,Demo Territory,Fictional caregiver,Yes
+SYN-049,2026-01-22,Injection-site redness,Non-serious,Fatal,DemoCompound-A,18-29,Exampleland,Fictional participant,No
+SYN-050,2026-01-30,Temporary flushing,Non-serious,Unknown,DemoCompound-B,30-44,Sample Republic,Fictional clinician,No

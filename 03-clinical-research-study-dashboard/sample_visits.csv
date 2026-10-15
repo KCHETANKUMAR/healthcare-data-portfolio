@@ -1,0 +1,41 @@
+visit_id,participant_id,visit_name,planned_date,actual_date,visit_status
+V001,P001,Screening,2026-01-04,2026-01-04,Completed
+V002,P001,Week 4,2026-02-01,2026-02-02,Completed
+V003,P002,Screening,2026-01-06,2026-01-06,Completed
+V004,P002,Week 4,2026-03-01,,Scheduled
+V005,P003,Screening,2026-01-08,2026-01-08,Completed
+V006,P003,Week 4,2026-02-05,2026-02-05,Completed
+V007,P004,Screening,2026-12-10,,Scheduled
+V008,P004,Week 4,2026-10-15,,Scheduled
+V009,P005,Screening,2026-01-11,2026-01-11,Completed
+V010,P005,Week 4,2026-02-08,,Cancelled
+V011,P006,Screening,2026-01-13,2026-01-13,Completed
+V012,P006,Week 4,2026-03-10,,Missed
+V013,P007,Screening,2026-01-15,2026-01-15,Completed
+V014,P007,Week 4,2026-03-15,,Scheduled
+V015,P008,Screening,2026-01-16,2026-01-16,Completed
+V016,P008,Week 4,2026-03-16,,Completed
+V017,P009,Screening,2026-02-30,2026-02-01,Completed
+V018,P009,Week 4,2026-03-18,2026-03-18,Completed
+V019,P010,Screening,2026-01-21,2026-01-21,Completed
+V020,P010,Week 4,,,Scheduled
+V021,P011,Screening,2026-01-22,2026-01-22,Completed
+V022,P011,Week 4,2026-03-22,2026-03-22,Completed
+V023,P012,Screening,2026-01-24,2026-01-24,Completed
+V024,P012,Week 4,2026-10-10,,Scheduled
+V025,P013,Screening,2026-01-26,2026-01-26,Completed
+V026,P013,Week 4,2026-03-26,,Missed
+V027,P014,Screening,2026-01-28,,Cancelled
+V028,P014,Week 4,2026-12-28,,Scheduled
+V029,P999,Week 4,2026-03-01,2026-03-01,Completed
+V030,P015,Week 8,2026-02-20,,Scheduled
+V031,P016,Screening,2026-02-02,2026-02-02,Completed
+V002,P016,Week 4,2026-03-02,2026-03-02,Completed
+V033,P017,Screening,2026-02-04,2026-02-04,Completed
+V034,P017,Week 4,2026-03-04,,Scheduled
+V035,P018,Screening,2026-02-06,2026-02-06,Completed
+V036,P018,Week 4,2026-03-06,2026-03-06,Completed
+V037,P019,Screening,2026-02-08,2026-02-08,Completed
+V038,P019,Week 4,2026-03-08,,Scheduled
+V039,P020,Screening,2026-02-09,2026-02-09,Completed
+V040,P020,Week 4,2026-03-09,,Scheduled

@@ -1,0 +1,10 @@
+{
+  "study_name": "Fictional Wellness Study",
+  "criteria": [
+    {"name": "Age range", "type": "inclusion", "field": "age", "operator": "between", "expected": [18, 65], "explanation": "Age falls within this fictional study's configured range."},
+    {"name": "BMI range", "type": "inclusion", "field": "bmi", "operator": "between", "expected": [18.5, 32], "explanation": "BMI falls within this fictional study's configured range."},
+    {"name": "Consent confirmed", "type": "inclusion", "field": "consent_status", "operator": "==", "expected": "Yes", "explanation": "The sample record indicates consent is confirmed."},
+    {"name": "Current smoking", "type": "exclusion", "field": "smoking_status", "operator": "==", "expected": "Current", "explanation": "Current smoking is configured as an exclusion for this fictional exercise."},
+    {"name": "Relevant history flag", "type": "exclusion", "field": "medical_history_flag", "operator": "==", "expected": "Yes", "explanation": "A relevant history flag is configured as an exclusion for this fictional exercise."}
+  ]
+}

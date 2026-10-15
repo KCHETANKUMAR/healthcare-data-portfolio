@@ -1,0 +1,6 @@
+participant_id,age,bmi,smoking_status,medical_history_flag,consent_status,notes
+DEMO-001,34,24.2,Never,No,Yes,Fictional sample participant
+DEMO-002,70,27.1,Former,No,Yes,Fictional sample participant
+DEMO-003,,22.8,Never,No,Yes,Fictional sample participant; age intentionally missing for UNKNOWN demonstration
+DEMO-004,42,29.5,Current,No,Yes,Fictional sample participant
+DEMO-005,29,not-a-number,Never,No,Yes,Fictional sample participant; BMI intentionally invalid for UNKNOWN demonstration

@@ -1,0 +1,13 @@
+participant_id,site_id,age,sex,informed_consent,visit_date,systolic_bp,diastolic_bp,adverse_event_reported
+P001,SITE-01,34,Female,Yes,2025-01-15,118,76,No
+P002,SITE-01,52,Male,Yes,2025-01-16,129,82,Yes
+P003,SITE-02,28,Female,No,2025-01-17,110,70,No
+P004,SITE-02,41,Other,Yes,2025-01-18,,,No
+P005,,45,Female,Yes,2025-01-19,120,78,No
+P006,SITE-03,60,Male,Yes,2025-01-20,135,85,No
+P006,SITE-03,60,Male,Yes,2025-01-21,137,86,No
+P008,SITE-04,39,Female,Yes,2025-02-30,122,80,No
+P009,SITE-04,17,Male,Yes,2025-02-01,116,74,No
+P010,SITE-05,67,Female,Yes,2025-02-02,255,151,Yes
+P011,SITE-05,48,Male,Pending,2025-02-03,124,79,No
+P012,SITE-06,55,Female,Yes,2025-02-04,119,77,Maybe
