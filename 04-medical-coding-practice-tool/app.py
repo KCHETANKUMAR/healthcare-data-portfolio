@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import csv
 import html
+import hmac
+import os
 import random
 import secrets
 from datetime import datetime, timezone
@@ -128,7 +130,7 @@ def render_flashcard(session: dict[str, object], index: int = 0, reveal: bool = 
             actions += f'<article class="entry-card"><h3>{escape(entry.get("term", "") or "Term not supplied")}</h3><p class="category">{escape(entry.get("category", "") or "Category not supplied")}</p><p>Think of the definition, then reveal the entry.</p></article>'
         actions += f'<a class="button" href="/flashcards?index={index}&amp;reveal=1">Reveal definition and reference</a>' if not reveal else ""
         actions += f'<a class="button secondary" href="/flashcards?index={(index + 1) % len(order)}">Next card</a>'
-        actions += '<a class="button secondary" href="/flashcards?shuffle=1">Shuffle cards</a>'
+        actions += f'<form method="post" action="/flashcards"><input type="hidden" name="csrf_token" value="{escape(session["csrf_token"])}"><input type="hidden" name="action" value="shuffle"><button class="secondary" type="submit">Shuffle cards</button></form>'
         body = '<section class="panel"><h2>Flashcards</h2>' + actions + '</section>'
     return render_page(session, body, title="Flashcards · Medical Terminology Practice Tool")
 
@@ -151,23 +153,23 @@ def render_quiz(session: dict[str, object]) -> str:
     if not questions:
         quiz_html = '<p class="muted">There are not enough distinct terms or answer choices to make a valid three-option multiple-choice quiz. Import a larger reference dataset.</p>'
     elif current is None:
-        quiz_html = '<p class="success">All available questions have been used in this quiz session. Reset the quiz to start a new round.</p><form method="post" action="/quiz"><input type="hidden" name="action" value="reset"><button class="secondary" type="submit">Reset quiz</button></form>'
+        quiz_html = f'<p class="success">All available questions have been used in this quiz session. Reset the quiz to start a new round.</p><form method="post" action="/quiz"><input type="hidden" name="csrf_token" value="{escape(session["csrf_token"])}"><input type="hidden" name="action" value="reset"><button class="secondary" type="submit">Reset quiz</button></form>'
     else:
         options = "".join(
             f'<label class="choice"><input type="radio" name="answer" value="{index}" required><span>{escape(option)}</span></label>'
             for index, option in enumerate(current["options"])
         )
         quiz_html = f'''<section class="panel"><p class="muted">Question {len(seen) + 1} of {len(questions)}</p><h2>{escape(current['prompt'])}</h2>
-<form method="post" action="/quiz"><input type="hidden" name="action" value="answer"><input type="hidden" name="question_id" value="{escape(current['question_id'])}">{options}<button type="submit">Submit answer</button></form></section>'''
+<form method="post" action="/quiz"><input type="hidden" name="csrf_token" value="{escape(session['csrf_token'])}"><input type="hidden" name="action" value="answer"><input type="hidden" name="question_id" value="{escape(current['question_id'])}">{options}<button type="submit">Submit answer</button></form></section>'''
     body = f'<section class="panel"><h2>Quiz</h2>{stats}{last_html}</section>{quiz_html}<p><a class="button secondary" href="/export.csv">Download session results CSV</a></p>'
     return render_page(session, body, title="Quiz · Medical Terminology Practice Tool")
 
 
 def render_import(session: dict[str, object]) -> str:
-    body = '''<section class="panel"><h2>Import a reference CSV</h2>
+    body = f'''<section class="panel"><h2>Import a reference CSV</h2>
 <p>Required columns: <code>term,definition,category,reference_code,explanation,source_name,source_version</code>.</p>
 <p>Imported rows replace the practice data for this browser session only. Duplicate terms/codes and blank reference/source fields are shown as warnings. No missing values are invented.</p>
-<form method="post" action="/import" enctype="multipart/form-data"><label for="reference_file">Choose CSV file</label>
+<form method="post" action="/import" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{escape(session['csrf_token'])}"><label for="reference_file">Choose CSV file</label>
 <input id="reference_file" type="file" name="reference_file" accept=".csv,text/csv" required><button type="submit">Validate and import</button></form></section>'''
     warnings = session.pop("import_warnings", [])
     if warnings:
@@ -203,6 +205,7 @@ class PracticeState:
             "quiz_seen": set(),
             "quiz_results": [],
             "notice": "",
+            "csrf_token": secrets.token_urlsafe(32),
         }
 
 
@@ -230,6 +233,22 @@ def _uploaded_csv(content_type: str, body: bytes) -> tuple[str, bytes]:
             payload = part.get_payload(decode=True) or b""
             return filename, payload
     raise ValueError("No reference_file upload was included in the form.")
+
+
+def _multipart_field(content_type: str, body: bytes, field_name: str) -> str:
+    try:
+        message = BytesParser(policy=email_policy).parsebytes(
+            b"Content-Type: " + content_type.encode("latin-1") + b"\r\nMIME-Version: 1.0\r\n\r\n" + body
+        )
+    except UnicodeEncodeError as exc:
+        raise ValueError("Invalid upload content type.") from exc
+    if not message.is_multipart():
+        raise ValueError("Please submit the import form using the file picker.")
+    for part in message.iter_parts():
+        if (part.get_content_disposition() == "form-data"
+                and part.get_param("name", header="content-disposition") == field_name):
+            return (part.get_payload(decode=True) or b"").decode("utf-8", errors="strict")
+    raise ValueError("The form security token is missing. Reload the page and try again.")
 
 
 class PracticeHTTPServer(ThreadingHTTPServer):
@@ -265,9 +284,12 @@ class PracticeHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "same-origin")
+        self.send_header("X-Frame-Options", "DENY")
         self.send_header("Content-Security-Policy", "default-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'none'; object-src 'none'")
         if new_cookie:
-            self.send_header("Set-Cookie", f"practice_session={session_id}; HttpOnly; SameSite=Lax; Path=/")
+            secure = "; Secure" if self.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower() == "https" else ""
+            self.send_header("Set-Cookie", f"practice_session={session_id}; HttpOnly; SameSite=Lax; Path=/{secure}")
         for key, value in (extra_headers or {}).items():
             self.send_header(key, value)
         self.end_headers()
@@ -294,23 +316,12 @@ class PracticeHandler(BaseHTTPRequestHandler):
                     raise ValueError("Choose a category from the available list.")
                 self._send(200, render_search(session, query, category or "All categories").encode("utf-8"), session_id=session_id, new_cookie=is_new)
             elif parsed.path == "/flashcards":
-                if _single(params, "shuffle", 2) == "1":
-                    random.shuffle(session["flash_order"])
-                    self._redirect("/flashcards", session_id, is_new)
-                    return
                 raw_index = _single(params, "index", 12) or "0"
                 if not raw_index.isdecimal():
                     raw_index = "0"
                 reveal = _single(params, "reveal", 2) == "1"
                 self._send(200, render_flashcard(session, int(raw_index), reveal).encode("utf-8"), session_id=session_id, new_cookie=is_new)
             elif parsed.path == "/quiz":
-                if _single(params, "reset", 2) == "1":
-                    session["quiz_seen"] = set()
-                    session["quiz_results"] = []
-                    session.pop("last_result", None)
-                    session["notice"] = "Quiz session reset."
-                    self._redirect("/quiz", session_id, is_new)
-                    return
                 self._send(200, render_quiz(session).encode("utf-8"), session_id=session_id, new_cookie=is_new)
             elif parsed.path == "/import":
                 self._send(200, render_import(session).encode("utf-8"), session_id=session_id, new_cookie=is_new)
@@ -335,12 +346,27 @@ class PracticeHandler(BaseHTTPRequestHandler):
             if length > MAX_UPLOAD_BYTES:
                 raise ValueError("Request is larger than the 2 MB upload limit.")
             body = self.rfile.read(length)
+            if parsed.path not in {"/quiz", "/import", "/flashcards"}:
+                self._page(session_id, session, is_new, '<section class="panel"><h2>Page not found</h2></section>', 404)
+                return
+            form = parse_qs(body.decode("utf-8", errors="strict"), keep_blank_values=True,
+                            max_num_fields=20) if parsed.path != "/import" else None
+            if parsed.path == "/import":
+                # The multipart parser below also validates the token in the request body.
+                token = _multipart_field(self.headers.get("Content-Type", ""), body, "csrf_token")
+            else:
+                token = _single(form or {}, "csrf_token", 200)
+            if not hmac.compare_digest(token, str(session["csrf_token"])):
+                raise ValueError("This form expired or failed its security check. Reload the page and try again.")
             if parsed.path == "/quiz":
                 self._handle_quiz_post(session_id, session, is_new, body)
             elif parsed.path == "/import":
                 self._handle_import_post(session_id, session, is_new, body)
-            else:
-                self._page(session_id, session, is_new, '<section class="panel"><h2>Page not found</h2></section>', 404)
+            elif parsed.path == "/flashcards":
+                if _single(form or {}, "action", 20) != "shuffle":
+                    raise ValueError("Select a valid flashcard action.")
+                random.shuffle(session["flash_order"])
+                self._redirect("/flashcards", session_id, is_new)
         except (ValueError, UnicodeError) as exc:
             self._page(session_id, session, is_new, f'<section class="panel"><h2>Could not process request</h2><p>{escape(exc)}</p></section>', 400)
 
@@ -348,7 +374,7 @@ class PracticeHandler(BaseHTTPRequestHandler):
         content_type = self.headers.get("Content-Type", "")
         if not content_type.startswith("application/x-www-form-urlencoded"):
             raise ValueError("Quiz answers must be submitted using the quiz form.")
-        form = parse_qs(body.decode("utf-8", errors="strict"), keep_blank_values=True)
+        form = parse_qs(body.decode("utf-8", errors="strict"), keep_blank_values=True, max_num_fields=20)
         action = _single(form, "action", 20)
         if action == "reset":
             session["quiz_seen"] = set()
@@ -412,21 +438,43 @@ class PracticeHandler(BaseHTTPRequestHandler):
         self._redirect("/import", session_id, is_new)
 
 
-def create_server(port: int = 8000, state: PracticeState | None = None) -> PracticeHTTPServer:
-    return PracticeHTTPServer(("127.0.0.1", port), PracticeHandler, state or PracticeState())
+def server_config(env: dict[str, str] | None = None) -> tuple[str, int]:
+    """Choose loopback locally and the public interface on Render."""
+    env = os.environ if env is None else env
+    raw_port = env.get("PORT", "8000")
+    try:
+        port = int(raw_port)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("PORT must be an integer between 1 and 65535.") from exc
+    if not 1 <= port <= 65535:
+        raise ValueError("PORT must be an integer between 1 and 65535.")
+    deployed = env.get("RENDER", "").lower() == "true"
+    return ("0.0.0.0" if deployed else "127.0.0.1", port)
+
+
+def create_server(port: int = 8000, state: PracticeState | None = None,
+                  host: str = "127.0.0.1") -> PracticeHTTPServer:
+    if not 1 <= port <= 65535:
+        raise ValueError("Port must be between 1 and 65535.")
+    return PracticeHTTPServer((host, port), PracticeHandler, state or PracticeState())
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Start the offline terminology practice web app.")
-    parser.add_argument("--port", type=int, default=8000, help="Local port to use (default: 8000)")
+    parser.add_argument("--port", type=int, help="Port to use (overrides PORT; default: PORT or 8000)")
     args = parser.parse_args(argv)
-    if not 1 <= args.port <= 65535:
+    try:
+        host, env_port = server_config()
+    except ValueError as exc:
+        parser.error(str(exc))
+    port = args.port if args.port is not None else env_port
+    if not 1 <= port <= 65535:
         parser.error("--port must be between 1 and 65535")
     try:
-        server = create_server(args.port)
+        server = create_server(port, host=host)
     except OSError as exc:
-        parser.error(f"could not start local server on port {args.port}: {exc}")
-    print(f"Serving locally at http://127.0.0.1:{server.server_port}/")
+        parser.error(f"could not start server on {host}:{port}: {exc}")
+    print(f"Serving on {host}:{server.server_port} (local URL: http://127.0.0.1:{server.server_port}/)")
     print("Press Ctrl+C to stop. Educational practice only; imported references are not independently verified.")
     try:
         server.serve_forever()

@@ -15,7 +15,7 @@ The project demonstrates practical Python skills with CSV parsing, validation, s
 - Take a multiple-choice quiz with both term-to-definition and term-to-practice-identifier questions. Questions do not repeat in a round; scoring is shown as the learner answers.
 - Import a reference CSV through the local interface. Required columns are checked; duplicate terms/codes and blank reference/source fields generate warnings.
 - Download quiz answers and a session summary as a CSV with a fixed, safe filename pattern.
-- Imported values are HTML-escaped. The local server validates form fields and uploads and is bound to `127.0.0.1` only.
+- Imported values are HTML-escaped. The local server validates form fields and uploads, and state-changing forms use per-session CSRF tokens.
 
 ## Requirements
 
@@ -30,6 +30,26 @@ python app.py
 ```
 
 Open the printed address, normally `http://127.0.0.1:8000/`, in your browser. Stop the server with **Ctrl+C**. To choose another local port, use `python app.py --port 8080`.
+
+## Publish on GitHub and deploy on Render
+
+1. Create a new, empty repository on [GitHub](https://github.com/), without adding a README or license if this project already has them.
+2. In PowerShell, open this project folder. This project folder currently has no Git repository, so initialize one and connect it to your new GitHub repository (replace the URL with your repository URL):
+
+   ```powershell
+   git init -b main
+   git add app.py quiz.py reference_data.py sample_data requirements.txt tests README.md render.yaml .gitignore
+   git commit -m "Prepare practice tool for Render deployment"
+   git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
+   git push -u origin main
+   ```
+
+   Review the staged file list before committing. Do not add real patient data, credentials, or reference data you do not have permission to publish. If you already initialized this folder or configured `origin` yourself, skip the applicable initialization/remote command; use `git remote set-url origin ...` if the existing remote URL needs changing.
+3. Sign in to [Render](https://render.com/) and choose **New + → Blueprint**. Connect the GitHub repository and select its `main` branch. Render reads the included `render.yaml` to create the web service; the app uses Render's assigned `PORT` and binds to the public interface there.
+4. Wait for the first deploy to finish. In the Render service page, open **Settings** or the service overview and find its **URL** (usually ending in `.onrender.com`). That is the public website link to share.
+5. Open the URL and try Home, Search, Flashcards, Quiz, Reference Import (use only fictional or properly licensed data), and the quiz CSV download. Do not enter real patient information.
+
+Render's free web services may sleep after a period without activity, so the first visit after inactivity can take longer. This app stores sessions and imported datasets only in process memory: they are temporary, can disappear on restart/redeploy, and are not shared between service instances.
 
 ## Sample reference data
 
@@ -50,7 +70,7 @@ Use **Download session results CSV** in Quiz mode. The download contains a times
 
 ## Tests
 
-Run the standard-library unit tests from this folder:
+Run the standard-library unit tests from this folder (the suite includes local HTTP and security checks):
 
 ```powershell
 python -m unittest discover -s tests -v
@@ -78,4 +98,4 @@ python -m unittest discover -s tests -v
 
 ## Limitations and safe use
 
-This is a learning tool, not a clinical or coding reference. It does not validate diagnoses, assign official codes, support billing, provide regulatory guidance, or replace qualified review. Even imported data with source metadata is not independently verified by this application. No real patient data should be entered. The application binds to the local computer, and imported references and quiz results remain in memory only for the current run/session.
+This is a learning tool, not a clinical, diagnostic, billing, or official coding system. It does not validate diagnoses, assign official codes, provide regulatory guidance, or replace qualified review. Even imported data with source metadata is not independently verified by this application. No real patient data should be entered. This small standard-library server is not production-secure: it has no persistent database, session expiry or storage limits, rate limiting, account access controls, or multi-instance session sharing. Sessions, imported references, and quiz results remain in memory and may be lost on restart or when a hosted instance sleeps/restarts. Use it for fictional educational practice only.

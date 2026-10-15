@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: medical-terminology-practice-tool
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: RENDER
+        value: "true"

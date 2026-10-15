@@ -13,6 +13,14 @@ EXPORT_FIELDS = (
 )
 
 
+def _csv_safe(value: object) -> str:
+    """Prevent imported text from being interpreted as a spreadsheet formula."""
+    text = str(value if value is not None else "")
+    if text.lstrip().startswith(("=", "+", "-", "@")):
+        return "'" + text
+    return text
+
+
 def next_unanswered_question(questions: Iterable[Mapping[str, object]], seen: set[str]) -> Mapping[str, object] | None:
     """Return the first unused question, or None after a full quiz round."""
     return next((question for question in questions if str(question.get("question_id", "")) not in seen), None)
@@ -85,13 +93,13 @@ def build_quiz_export(results: Iterable[Mapping[str, object]], now: datetime | N
     writer.writeheader()
     for row in rows:
         writer.writerow({
-            "Timestamp": row.get("timestamp", ""),
-            "Question": row.get("question", ""),
-            "Selected answer": row.get("selected_answer", ""),
-            "Expected answer": row.get("expected_answer", ""),
+            "Timestamp": _csv_safe(row.get("timestamp", "")),
+            "Question": _csv_safe(row.get("question", "")),
+            "Selected answer": _csv_safe(row.get("selected_answer", "")),
+            "Expected answer": _csv_safe(row.get("expected_answer", "")),
             "Result": "Correct" if row.get("correct") else "Incorrect",
             "Score percentage": f"{float(row.get('score_percentage', 0)):.1f}%",
-            "Explanation": row.get("explanation", ""),
+            "Explanation": _csv_safe(row.get("explanation", "")),
         })
     writer.writerow({
         "Timestamp": timestamp.astimezone(timezone.utc).isoformat(timespec="seconds"),

@@ -1,11 +1,13 @@
 import csv
 import random
 import tempfile
+import threading
 import unittest
+from http.client import HTTPConnection
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import render_entry_card, render_search
+from app import PracticeHTTPServer, PracticeHandler, PracticeState, render_entry_card, render_search, server_config
 from quiz import (
     build_quiz_export,
     build_quiz_questions,
@@ -85,6 +87,104 @@ class ReferenceDataTests(unittest.TestCase):
         self.assertNotIn(unsafe["term"], render_search(session, "img"))
 
 
+class DeploymentAndHTTPTests(unittest.TestCase):
+    def test_server_config_local_render_and_invalid_ports(self):
+        self.assertEqual(server_config({}), ("127.0.0.1", 8000))
+        self.assertEqual(server_config({"PORT": "9001"}), ("127.0.0.1", 9001))
+        self.assertEqual(server_config({"PORT": "10000", "RENDER": "true"}), ("0.0.0.0", 10000))
+        for port in ("zero", "0", "65536"):
+            with self.assertRaises(ValueError):
+                server_config({"PORT": port})
+
+    def test_pages_csrf_session_isolation_import_quiz_export_and_secure_cookie(self):
+        server = PracticeHTTPServer(("127.0.0.1", 0), PracticeHandler, PracticeState())
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        conn = HTTPConnection("127.0.0.1", server.server_port)
+        try:
+            conn.request("GET", "/")
+            response = conn.getresponse()
+            home = response.read().decode()
+            cookie = response.getheader("Set-Cookie").split(";", 1)[0]
+            self.assertEqual(response.status, 200)
+            self.assertIn("Educational practice only", home)
+            for path in ("/search", "/flashcards", "/quiz", "/import", "/export.csv"):
+                conn.request("GET", path, headers={"Cookie": cookie})
+                page = conn.getresponse()
+                self.assertEqual(page.status, 200, path)
+                payload = page.read()
+                if path in ("/quiz", "/import"):
+                    self.assertIn(b'name="csrf_token"', payload)
+
+            # A cross-site style form without a token is rejected.
+            conn.request("POST", "/quiz", body="action=reset", headers={"Cookie": cookie, "Content-Type": "application/x-www-form-urlencoded"})
+            rejected = conn.getresponse()
+            self.assertEqual(rejected.status, 400)
+            rejected.read()
+
+            # A valid quiz answer is accepted and appears in the same session's CSV.
+            session_id = cookie.split("=", 1)[1]
+            session = server.state.sessions[session_id]
+            question = session["quiz_questions"][0]
+            token = session["csrf_token"]
+            body = f"csrf_token={token}&action=answer&question_id={question['question_id']}&answer=0"
+            conn.request("POST", "/quiz", body=body, headers={"Cookie": cookie, "Content-Type": "application/x-www-form-urlencoded"})
+            answered = conn.getresponse()
+            self.assertEqual(answered.status, 303)
+            answered.read()
+            self.assertEqual(len(session["quiz_results"]), 1)
+            conn.request("GET", "/export.csv", headers={"Cookie": cookie})
+            exported = conn.getresponse()
+            csv_text = exported.read().decode()
+            self.assertIn("SESSION SUMMARY", csv_text)
+
+            # HTTPS termination proxy flag adds Secure only to the newly-issued cookie.
+            conn.request("GET", "/", headers={"X-Forwarded-Proto": "https"})
+            secure_response = conn.getresponse()
+            secure_response.read()
+            self.assertIn("; Secure", secure_response.getheader("Set-Cookie"))
+
+            # Import validation is enforced through the HTTP handler and requires the session token.
+            boundary = "----PracticeBoundary"
+            upload = (
+                f"--{boundary}\r\nContent-Disposition: form-data; name=\"csrf_token\"\r\n\r\n{token}\r\n"
+                f"--{boundary}\r\nContent-Disposition: form-data; name=\"reference_file\"; filename=\"practice.csv\"\r\n"
+                "Content-Type: text/csv\r\n\r\nterm,definition\r\nMissing columns,Nope\r\n"
+                f"--{boundary}--\r\n"
+            )
+            conn.request("POST", "/import", body=upload, headers={"Cookie": cookie, "Content-Type": f"multipart/form-data; boundary={boundary}"})
+            invalid_import = conn.getresponse()
+            self.assertEqual(invalid_import.status, 400)
+            self.assertIn(b"missing required columns", invalid_import.read())
+
+            headers = "term,definition,category,reference_code,explanation,source_name,source_version"
+            data = headers + "\nPrivate test term,Definition,General,PRACTICE-TEST,Practice only,Fictional,1"
+            upload = (
+                f"--{boundary}\r\nContent-Disposition: form-data; name=\"csrf_token\"\r\n\r\n{token}\r\n"
+                f"--{boundary}\r\nContent-Disposition: form-data; name=\"reference_file\"; filename=\"practice.csv\"\r\n"
+                f"Content-Type: text/csv\r\n\r\n{data}\r\n--{boundary}--\r\n"
+            )
+            conn.request("POST", "/import", body=upload, headers={"Cookie": cookie, "Content-Type": f"multipart/form-data; boundary={boundary}"})
+            imported = conn.getresponse()
+            self.assertEqual(imported.status, 303)
+            imported.read()
+            self.assertEqual(session["dataset_kind"], "imported")
+
+            # A second visitor gets a separate sample session and no imported state/results.
+            conn.request("GET", "/import")
+            other = conn.getresponse()
+            other_cookie = other.getheader("Set-Cookie").split(";", 1)[0]
+            other.read()
+            other_session = server.state.sessions[other_cookie.split("=", 1)[1]]
+            self.assertEqual(other_session["dataset_kind"], "sample")
+            self.assertEqual(other_session["quiz_results"], [])
+        finally:
+            conn.close()
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+
 class QuizTests(unittest.TestCase):
     def setUp(self):
         self.rows = [
@@ -135,6 +235,17 @@ class QuizTests(unittest.TestCase):
         self.assertEqual(data[0]["Expected answer"], "Definition one")
         self.assertEqual(data[-1]["Question"], "SESSION SUMMARY")
         self.assertEqual(data[-1]["Score percentage"], "100.0%")
+
+    def test_export_neutralizes_spreadsheet_formulas_in_imported_text(self):
+        _, csv_text = build_quiz_export([{
+            "question": '=HYPERLINK("https://example.invalid")',
+            "selected_answer": " +SUM(1,1)",
+            "expected_answer": "@malicious",
+            "explanation": "-1+1",
+        }])
+        self.assertIn("'=HYPERLINK", csv_text)
+        self.assertIn("' +SUM", csv_text)
+        self.assertIn("'@malicious", csv_text)
 
 
 if __name__ == "__main__":
