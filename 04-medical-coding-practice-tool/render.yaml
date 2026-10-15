@@ -3,6 +3,7 @@ services:
     name: medical-terminology-practice-tool
     runtime: python
     plan: free
+    rootDir: 04-medical-coding-practice-tool
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     envVars:
