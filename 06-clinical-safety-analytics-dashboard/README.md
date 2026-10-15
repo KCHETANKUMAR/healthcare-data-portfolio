@@ -69,6 +69,10 @@ python -m unittest discover -s tests -v
 
 Tests cover sample loading, metrics, breakdowns, month grouping, invalid dates, filters, CSV schema handling, empty inputs, data-quality issue detection and preservation, exports, HTTP responses, and safe rendering of HTML-like imported strings.
 
+## Screenshot
+
+![Clinical Safety Analytics Dashboard using the synthetic sample reports](screenshots/dashboard.png)
+
 ## Project structure
 
 ```text

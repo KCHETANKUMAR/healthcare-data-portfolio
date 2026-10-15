@@ -6,14 +6,14 @@ A portfolio of six independent educational projects exploring pharmacovigilance,
 
 ## Project index
 
-| Project | Topic | Technologies |
-|---|---|---|
-| [Project 01: PV ICSR Case Processing Simulator](01-pv-icsr-simulator/) | Pharmacovigilance, case intake, follow-up, and QC workflow | Python, Streamlit, Pandas, SQLite |
-| [Project 02: Clinical Trial Data Quality Checker](02-clinical-data-quality-checker/) | Clinical research CSV validation and issue reporting | Python standard library, CSV, unittest |
-| [Project 03: Clinical Research Study Dashboard](03-clinical-research-study-dashboard/) | Offline summaries of fictional participant and visit data | Python standard library, CSV, HTML/CSS |
-| [Project 04: Medical Terminology & Coding Practice Tool](04-medical-coding-practice-tool/) | Terminology search, flashcards, quizzes, and reference CSV practice | Python standard library, HTTP, CSV, HTML/CSS |
-| [Project 05: Clinical Trial Eligibility Screener](05-clinical-trial-eligibility-screener/) | Educational screening against configurable fictional study criteria | Python standard library, HTTP, JSON, CSV |
-| [Project 06: Clinical Safety & Adverse Event Analytics Dashboard](06-clinical-safety-analytics-dashboard/) | Descriptive analysis and quality checks for synthetic safety report rows | Python standard library, HTTP, CSV, HTML/CSS |
+| Project | Topic | Technologies | Screenshot |
+|---|---|---|---|
+| [Project 01: PV ICSR Case Processing Simulator](01-pv-icsr-simulator/) | Pharmacovigilance, case intake, follow-up, and QC workflow | Python, Streamlit, Pandas, SQLite | — |
+| [Project 02: Clinical Trial Data Quality Checker](02-clinical-data-quality-checker/) | Clinical research CSV validation and issue reporting | Python standard library, CSV, unittest | — |
+| [Project 03: Clinical Research Study Dashboard](03-clinical-research-study-dashboard/) | Offline summaries of fictional participant and visit data | Python standard library, CSV, HTML/CSS | [Dashboard](03-clinical-research-study-dashboard/screenshots/dashboard.png) |
+| [Project 04: Medical Terminology & Coding Practice Tool](04-medical-coding-practice-tool/) | Terminology search, flashcards, quizzes, and reference CSV practice | Python standard library, HTTP, CSV, HTML/CSS | [Practice tool](04-medical-coding-practice-tool/screenshots/practice-tool.png) |
+| [Project 05: Clinical Trial Eligibility Screener](05-clinical-trial-eligibility-screener/) | Educational screening against configurable fictional study criteria | Python standard library, HTTP, JSON, CSV | [Screening report](05-clinical-trial-eligibility-screener/screenshots/screening-report.png) |
+| [Project 06: Clinical Safety & Adverse Event Analytics Dashboard](06-clinical-safety-analytics-dashboard/) | Descriptive analysis and quality checks for synthetic safety report rows | Python standard library, HTTP, CSV, HTML/CSS | [Dashboard](06-clinical-safety-analytics-dashboard/screenshots/dashboard.png) |
 
 
 ## Getting started

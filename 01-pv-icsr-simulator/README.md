@@ -89,4 +89,4 @@ This project is a teaching aid, not validated software and not a substitute for 
 
 ## Screenshots
 
-Screenshots can be added later under a `screenshots/` directory. Capture the running fictional-data dashboard and case detail views, then link them here, for example: `![Dashboard](screenshots/dashboard.png)`.
+No screenshot is included yet because Streamlit is not installed in the capture environment. To create one locally, install the listed requirements, run `streamlit run app.py`, click **Insert fictional sample cases (once)**, and use Windows Snipping Tool to capture the dashboard. Save the image as `screenshots/dashboard.png`, then add `![Dashboard with fictional sample cases](screenshots/dashboard.png)` here. Keep the browser address bar and any local file paths out of the capture.

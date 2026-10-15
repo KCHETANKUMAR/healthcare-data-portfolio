@@ -72,4 +72,4 @@ The included sample contains 12 fictional rows, including several deliberate tra
 
 ## Screenshots
 
-This is a terminal tool. A screenshot can be added later under `screenshots/`, for example showing a terminal run and a spreadsheet view of the resulting report. Do not include real participant information.
+This is a terminal tool, so no browser screenshot applies. To capture its real output locally, run `python main.py` from this folder and use Windows Snipping Tool on the terminal summary. Crop out the prompt and the final report-path line to avoid exposing a local path. If you save the image as `screenshots/cli-summary.png`, add `![CLI summary for fictional training data](screenshots/cli-summary.png)` here. The bundled sample data is fictional; do not show real participant information.

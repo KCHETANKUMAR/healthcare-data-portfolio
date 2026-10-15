@@ -56,6 +56,10 @@ Run the standard-library unit tests from this folder:
 python -m unittest discover -s tests -v
 ```
 
+## Screenshot
+
+![Medical Terminology and Coding Practice Tool using the bundled fictional reference entries](screenshots/practice-tool.png)
+
 ## Project structure
 
 ```text

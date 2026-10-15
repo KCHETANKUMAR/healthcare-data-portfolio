@@ -85,6 +85,10 @@ python -m unittest discover -s tests -v
 
 The tests use `unittest` and cover criteria/configuration validation, numeric boundaries, unknown and disqualifying results, CSV import validation, report export, HTML safety, and local HTTP responses.
 
+## Screenshot
+
+![Screening report for the bundled fictional participant sample](screenshots/screening-report.png)
+
 ## Project structure
 
 ```text

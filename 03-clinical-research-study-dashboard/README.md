@@ -79,4 +79,6 @@ Tests use temporary directories and the Python standard library only.
 
 ## Screenshots
 
-Screenshots can be added later under a `screenshots/` folder. A useful example would show the sample dashboard in a browser. Include fictional data only.
+![Clinical Research Study Dashboard using the fictional sample data](screenshots/dashboard.png)
+
+Additional screenshots can be added under this folder. Include fictional data only.
